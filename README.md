@@ -7,20 +7,16 @@ Installation
 To run this script, you will need Python 3 and several dependencies:
 
 Clone the Repository:
-bash
-Copy code
-git clone https://github.com/your-github-username/diffscript.git
-cd diffscript
+`git clone https://github.com/your-github-username/diffscript.git`
+`cd diffscript`
 Install Dependencies:
-Copy code
-pip install requests beautifulsoup4 aiohttp
+`pip install requests beautifulsoup4 aiohttp`
 Usage
 
 Before running the script, ensure you have a starting_points.txt file in your script directory with URLs you want to monitor.
 
 Run the Script:
-Copy code
-python3 diffscript.py
+`python3 diffscript.py`
 Telegram Bot Setup:
 Make sure to set up a Telegram bot and obtain the bot_token and chat_id to use the messaging feature.
 Output:
