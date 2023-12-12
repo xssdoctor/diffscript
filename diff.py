@@ -163,7 +163,7 @@ async def main():
             newUrls = sorted(get_new_urls(working_dir))
             for newUrl in newUrls:
                 if newUrl not in oldUrls:
-                    send_telegram_message('New js file: ' + newUrl + 'in '+ working_dir)
+                    send_telegram_message('New js file: ' + newUrl + ' in '+ working_dir)
             oldEndpoints = sorted(load_old_endpoints(working_dir))
             newEndpoints = sorted(load_new_endpoints(working_dir))
             for newEndpoint in newEndpoints:
