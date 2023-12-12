@@ -148,39 +148,40 @@ async def get_js_from_endpoints(endpoints, working_dir):
 async def main():
     starting_points = get_starting_points()
     for startingpoint in starting_points:
-        working_dir = update_working_dir(startingpoint)
-        oldAndNew = updateFolders(working_dir)
-        if oldAndNew:
-            html = requests.get(startingpoint).text
-            await fetch_js_urls_from_website(
-                html, startingpoint, working_dir)
-            endpoints = set()
-            fetch_urls(working_dir, endpoints)
-            await get_js_from_endpoints(endpoints, working_dir)
-            fetch_urls(working_dir, endpoints)
-            save_endpoints(working_dir, endpoints)
-            oldUrls = sorted(get_old_urls(working_dir))
-            newUrls = sorted(get_new_urls(working_dir))
-            for newUrl in newUrls:
-                if newUrl not in oldUrls:
-                    send_telegram_message('New js file: ' + newUrl + ' in '+ working_dir)
-            oldEndpoints = sorted(load_old_endpoints(working_dir))
-            newEndpoints = sorted(load_new_endpoints(working_dir))
-            for newEndpoint in newEndpoints:
-                if newEndpoint and newEndpoint not in oldEndpoints:
-                    send_telegram_message(
-                        'New endpoint: ' + newEndpoint)
-        else:
-            html = requests.get(startingpoint).text
-            await fetch_js_urls_from_website(
-                html, startingpoint, working_dir)
-            endpoints = set()
-            fetch_urls(working_dir, endpoints)
-            await get_js_from_endpoints(endpoints, working_dir)
-            fetch_urls(working_dir, endpoints)
-            save_endpoints(working_dir, endpoints)
+        if startingpoint:
+            working_dir = update_working_dir(startingpoint)
+            oldAndNew = updateFolders(working_dir)
+            if oldAndNew:
+                html = requests.get(startingpoint).text
+                await fetch_js_urls_from_website(
+                    html, startingpoint, working_dir)
+                endpoints = set()
+                fetch_urls(working_dir, endpoints)
+                await get_js_from_endpoints(endpoints, working_dir)
+                fetch_urls(working_dir, endpoints)
+                save_endpoints(working_dir, endpoints)
+                oldUrls = sorted(get_old_urls(working_dir))
+                newUrls = sorted(get_new_urls(working_dir))
+                for newUrl in newUrls:
+                    if newUrl not in oldUrls:
+                        send_telegram_message(
+                            'New js file: ' + newUrl + ' in ' + working_dir)
+                oldEndpoints = sorted(load_old_endpoints(working_dir))
+                newEndpoints = sorted(load_new_endpoints(working_dir))
+                for newEndpoint in newEndpoints:
+                    if newEndpoint and newEndpoint not in oldEndpoints:
+                        send_telegram_message(
+                            'New endpoint: ' + newEndpoint)
+            else:
+                html = requests.get(startingpoint).text
+                await fetch_js_urls_from_website(
+                    html, startingpoint, working_dir)
+                endpoints = set()
+                fetch_urls(working_dir, endpoints)
+                await get_js_from_endpoints(endpoints, working_dir)
+                fetch_urls(working_dir, endpoints)
+                save_endpoints(working_dir, endpoints)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-
