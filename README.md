@@ -11,6 +11,8 @@ Clone the Repository:
 `cd diffscript`
 Install Dependencies:
 `pip install requests beautifulsoup4 aiohttp`
+Install Jsluice
+`go install github.com/BishopFox/jsluice/cmd/jsluice@latest`
 Usage
 
 Before running the script, ensure you have a starting_points.txt file in your script directory with URLs you want to monitor.
