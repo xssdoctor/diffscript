@@ -15,25 +15,34 @@ cd diffscript
 
 Install Dependencies:
 
-`pip install -r requirements.txt`
+```
+pip install -r requirements.txt
+```
 
-Install Jsluice
+Install Jsluice:
 
-`go install github.com/BishopFox/jsluice/cmd/jsluice@latest`
+```
+go install github.com/BishopFox/jsluice/cmd/jsluice@latest
+```
 
 ## Usage
 
 Before running the script, ensure you have a `starting_points.txt` file in your script directory with URLs you want to monitor.
+
+Telegram Bot Setup:
+Make sure to set up a [Telegram bot](https://core.telegram.org/bots) and obtain the `bot_token` and `chat_id` to use the messaging feature.
+Once you have the bot token and chat ID, add the following lines to your `.bashrc` or `.zshrc` file:
+
+```
+export TELEGRAM_BOT_TOKEN="your-token-goes-here"
+export TELEGRAM_CHAT_ID="your-chat-id-goes-here"
+```
 
 Run the Script:
 
 ```
 python3 diffscript.py
 ```
-
-Telegram Bot Setup:
-
-Make sure to set up a [Telegram bot](https://core.telegram.org/bots) and obtain the `bot_token` and `chat_id` to use the messaging feature.
 
 Output:
 
