@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -9,7 +11,22 @@ from urllib import parse
 from urllib.parse import urljoin
 import os
 
+TELEGRAM_CHAT_ID = ''
+TELEGRAM_BOT_TOKEN = ''
+
 cwd = os.getcwd()
+
+if not os.environ.get('TELEGRAM_BOT_TOKEN'):
+    print('[!] No Telegram bot token found! Consider adding "export TELEGRAM_BOT_TOKEN=\'<your-token>\'" to your .bashrc/.zshrc!')
+    TELEGRAM_BOT_TOKEN = input('Enter one here: ')
+else:
+    TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+
+if not os.environ.get('TELEGRAM_CHAT_ID'):
+    print('[!] No Telegram chat ID found! Consider adding "export TELEGRAM_CHAT_ID=\'<your-chatID>\'" to your .bashrc/.zshrc!')
+    TELEGRAM_CHAT_ID = input('Enter one here: ')
+else:
+    TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
 
 
 def get_starting_points():
@@ -122,9 +139,7 @@ def load_new_endpoints(working_dir):
 
 def send_telegram_message(message):
     message = parse.quote(message)
-    chat_id = 
-    bot_token = 
-    send_text = f'https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}'
+    send_text = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage?chat_id={TELEGRAM_CHAT_ID}&text={message}'
     resp = requests.get(send_text)
     return resp.json()
 
