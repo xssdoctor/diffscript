@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -9,7 +11,22 @@ from urllib import parse
 from urllib.parse import urljoin
 import os
 
+TELEGRAM_CHAT_ID = ''
+TELEGRAM_BOT_TOKEN = ''
+
 cwd = os.getcwd()
+
+if not os.environ.get('TELEGRAM_BOT_TOKEN'):
+    print('[!] No Telegram bot token found! Consider adding "export TELEGRAM_BOT_TOKEN=\'<your-token>\'" to your .bashrc/.zshrc!')
+    TELEGRAM_BOT_TOKEN = input('Enter one here: ')
+else:
+    TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+
+if not os.environ.get('TELEGRAM_CHAT_ID'):
+    print('[!] No Telegram chat ID found! Consider adding "export TELEGRAM_CHAT_ID=\'<your-chatID>\'" to your .bashrc/.zshrc!')
+    TELEGRAM_CHAT_ID = input('Enter one here: ')
+else:
+    TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
 
 
 def get_starting_points():
@@ -57,7 +74,7 @@ async def download_urls(inputFile, working_dir):
                 with open(os.path.join(working_dir, 'new', basename), 'wb') as outfile:
                     outfile.write(content)
     except:
-        pass
+        return 'download_urls failed to process'
 
 
 async def fetch_js_urls_from_website(html, target_url, working_dir):
@@ -78,7 +95,7 @@ async def fetch_js_urls_from_website(html, target_url, working_dir):
         await asyncio.gather(*tasks)  # Run all download tasks concurrently
         return jsfiles
     except:
-        pass
+        return 'fetch_js_urls_from_website failed to process'
 
 
 def get_new_urls(working_dir):
@@ -99,9 +116,9 @@ def fetch_urls(working_dir, endpoints):
                     if endpoint:
                         endpoints.add(endpoint.strip())
             except Exception as e:
-                pass
+                return f'Exception caught in "fetch_urls": {e}'
     except:
-        pass
+        return 'fetch_urls failed process'
 
 
 def save_endpoints(working_dir, endpoints):
@@ -122,9 +139,7 @@ def load_new_endpoints(working_dir):
 
 def send_telegram_message(message):
     message = parse.quote(message)
-    chat_id = 
-    bot_token = 
-    send_text = f'https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}'
+    send_text = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage?chat_id={TELEGRAM_CHAT_ID}&text={message}'
     resp = requests.get(send_text)
     return resp.json()
 
@@ -142,7 +157,7 @@ async def get_js_from_endpoints(endpoints, working_dir):
                     tasks.append(download_urls(endpoint, working_dir))
         await asyncio.gather(*tasks)
     except:
-        pass
+        return 'get_js_from_endpoints failed to process'
 
 
 async def main():
@@ -151,6 +166,9 @@ async def main():
         if startingpoint:
             working_dir = update_working_dir(startingpoint)
             oldAndNew = updateFolders(working_dir)
+            # setup lists for sending to telegram - keeps it at 1 message per target, per list
+            telegram_urls = []
+            telegram_endpoints = []
             if oldAndNew:
                 html = requests.get(startingpoint).text
                 await fetch_js_urls_from_website(
@@ -164,14 +182,12 @@ async def main():
                 newUrls = sorted(get_new_urls(working_dir))
                 for newUrl in newUrls:
                     if newUrl not in oldUrls:
-                        send_telegram_message(
-                            'New js file: ' + newUrl + ' in ' + working_dir)
+                        telegram_urls.append((newUrl, working_dir))
                 oldEndpoints = sorted(load_old_endpoints(working_dir))
                 newEndpoints = sorted(load_new_endpoints(working_dir))
                 for newEndpoint in newEndpoints:
                     if newEndpoint and newEndpoint not in oldEndpoints:
-                        send_telegram_message(
-                            'New endpoint: ' + newEndpoint)
+                        telegram_endpoints.append(newEndpoint)
             else:
                 html = requests.get(startingpoint).text
                 await fetch_js_urls_from_website(
@@ -181,6 +197,12 @@ async def main():
                 await get_js_from_endpoints(endpoints, working_dir)
                 fetch_urls(working_dir, endpoints)
                 save_endpoints(working_dir, endpoints)
+
+            # send the alert after the targets are processed
+            if telegram_urls:
+                send_telegram_message(f'New JS Files:\n {telegram_urls}')
+            if telegram_endpoints:
+                send_telegram_message(f'New Endpoints:\n {telegram_endpoints}')
 
 
 if __name__ == "__main__":
