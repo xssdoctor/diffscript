@@ -166,6 +166,9 @@ async def main():
         if startingpoint:
             working_dir = update_working_dir(startingpoint)
             oldAndNew = updateFolders(working_dir)
+            # setup lists for sending to telegram - keeps it at 1 message per target, per list
+            telegram_urls = []
+            telegram_endpoints = []
             if oldAndNew:
                 html = requests.get(startingpoint).text
                 await fetch_js_urls_from_website(
@@ -179,14 +182,12 @@ async def main():
                 newUrls = sorted(get_new_urls(working_dir))
                 for newUrl in newUrls:
                     if newUrl not in oldUrls:
-                        send_telegram_message(
-                            'New js file: ' + newUrl + ' in ' + working_dir)
+                        telegram_urls.append((newUrl, working_dir))
                 oldEndpoints = sorted(load_old_endpoints(working_dir))
                 newEndpoints = sorted(load_new_endpoints(working_dir))
                 for newEndpoint in newEndpoints:
                     if newEndpoint and newEndpoint not in oldEndpoints:
-                        send_telegram_message(
-                            'New endpoint: ' + newEndpoint)
+                        telegram_endpoints.append(newEndpoint)
             else:
                 html = requests.get(startingpoint).text
                 await fetch_js_urls_from_website(
@@ -196,6 +197,12 @@ async def main():
                 await get_js_from_endpoints(endpoints, working_dir)
                 fetch_urls(working_dir, endpoints)
                 save_endpoints(working_dir, endpoints)
+
+            # send the alert after the targets are processed
+            if telegram_urls:
+                send_telegram_message(f'New JS Files:\n {telegram_urls}')
+            if telegram_endpoints:
+                send_telegram_message(f'New Endpoints:\n {telegram_endpoints}')
 
 
 if __name__ == "__main__":
