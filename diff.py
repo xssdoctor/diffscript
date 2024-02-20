@@ -74,7 +74,7 @@ async def download_urls(inputFile, working_dir):
                 with open(os.path.join(working_dir, 'new', basename), 'wb') as outfile:
                     outfile.write(content)
     except:
-        pass
+        return 'download_urls failed to process'
 
 
 async def fetch_js_urls_from_website(html, target_url, working_dir):
@@ -95,7 +95,7 @@ async def fetch_js_urls_from_website(html, target_url, working_dir):
         await asyncio.gather(*tasks)  # Run all download tasks concurrently
         return jsfiles
     except:
-        pass
+        return 'fetch_js_urls_from_website failed to process'
 
 
 def get_new_urls(working_dir):
@@ -116,9 +116,9 @@ def fetch_urls(working_dir, endpoints):
                     if endpoint:
                         endpoints.add(endpoint.strip())
             except Exception as e:
-                pass
+                return f'Exception caught in "fetch_urls": {e}'
     except:
-        pass
+        return 'fetch_urls failed process'
 
 
 def save_endpoints(working_dir, endpoints):
@@ -157,7 +157,7 @@ async def get_js_from_endpoints(endpoints, working_dir):
                     tasks.append(download_urls(endpoint, working_dir))
         await asyncio.gather(*tasks)
     except:
-        pass
+        return 'get_js_from_endpoints failed to process'
 
 
 async def main():
